@@ -1,7 +1,6 @@
 .data
 
-vmt_Fac:
-  Fac.ComputeFac
+empty_Fac:
 
 .text
 
@@ -14,22 +13,10 @@ Main:
   move $fp $sp
   subu $sp $sp 8
   sw $ra -4($fp)
-  li $a0 4
-  jal _heapAlloc
-  move $t0 $v0
-  la $t9 vmt_Fac
-  sw $t9 0($t0)
-  bnez $t0 null1
-  la $a0 _str0
-  j _error
-null1:
-  lw $t1 0($t0)
-  lw $t1 0($t1)
-  move $a0 $t0
+Label Ref: empty_Fac
   li $a1 10
-  jalr $t1
-  move $t1 $v0
-  move $a0 $t1
+  move $t0 $v0
+  move $a0 $t0
   jal _print
   lw $ra -4($fp)
   lw $fp -8($fp)
@@ -49,14 +36,11 @@ Fac.ComputeFac:
   li $t1 1
   j if1_end
 if1_else:
-  lw $t2 0($t0)
-  lw $t2 0($t2)
-  subu $t3 $s0 1
+  subu $t2 $s0 1
   move $a0 $t0
-  move $a1 $t3
-  jalr $t2
-  move $t3 $v0
-  mul $t1 $s0 $t3
+  move $a1 $t2
+  move $t2 $v0
+  mul $t1 $s0 $t2
 if1_end:
   move $v0 $t1
   lw $s0 0($sp)

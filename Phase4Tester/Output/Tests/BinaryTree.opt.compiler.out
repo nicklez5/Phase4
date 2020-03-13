@@ -1,0 +1,218 @@
+.data
+
+empty_BT:
+
+empty_Tree:
+
+.text
+
+  jal Main
+  li $v0 10
+  syscall
+
+Main:
+  sw $fp -8($sp)
+  move $fp $sp
+  subu $sp $sp 8
+  sw $ra -4($fp)
+  la $a0 empty_BT
+  jal BT.Start
+  move $t0 $v0
+  move $a0 $t0
+  jal _print
+  lw $ra -4($fp)
+  lw $fp -8($fp)
+  addu $sp $sp 8
+  jr $ra
+
+BT.Start:
+  sw $fp -8($sp)
+  move $fp $sp
+  subu $sp $sp 12
+  sw $ra -4($fp)
+  sw $s0 0($sp)
+  li $a0 24
+  jal _heapAlloc
+  sw $t9 0($t0)
+  bnez $t0 null1
+  la $a0 _str0
+  j _error
+null1:
+  move $a0 $s0
+  li $a1 16
+  jal Tree.Init
+  sw $t9 0($t0)
+  bnez $t0 null2
+  la $a0 _str0
+  j _error
+null2:
+  move $a0 $s0
+  jal Tree.Print
+  li $a0 100000000
+  jal _print
+  sw $t9 0($t0)
+  bnez $t0 null3
+  la $a0 _str0
+  j _error
+null3:
+  move $a0 $s0
+  li $a1 8
+  jal Tree.Insert
+  sw $t9 0($t0)
+  bnez $t0 null4
+  la $a0 _str0
+  j _error
+null4:
+  move $a0 $s0
+  jal Tree.Print
+  sw $t9 0($t0)
+  bnez $t0 null5
+  la $a0 _str0
+  j _error
+null5:
+  move $a0 $s0
+  li $a1 24
+  jal Tree.Insert
+  sw $t9 0($t0)
+  bnez $t0 null6
+  la $a0 _str0
+  j _error
+null6:
+  move $a0 $s0
+  li $a1 4
+  jal Tree.Insert
+  sw $t9 0($t0)
+  bnez $t0 null7
+  la $a0 _str0
+  j _error
+null7:
+  move $a0 $s0
+  li $a1 12
+  jal Tree.Insert
+  sw $t9 0($t0)
+  bnez $t0 null8
+  la $a0 _str0
+  j _error
+null8:
+  move $a0 $s0
+  li $a1 20
+  jal Tree.Insert
+  sw $t9 0($t0)
+  bnez $t0 null9
+  la $a0 _str0
+  j _error
+null9:
+  move $a0 $s0
+  li $a1 28
+  jal Tree.Insert
+  sw $t9 0($t0)
+  bnez $t0 null10
+  la $a0 _str0
+  j _error
+null10:
+  move $a0 $s0
+  li $a1 14
+  jal Tree.Insert
+  sw $t9 0($t0)
+  bnez $t0 null11
+  la $a0 _str0
+  j _error
+null11:
+  move $a0 $s0
+  jal Tree.Print
+  sw $t9 0($t0)
+  bnez $t0 null12
+  la $a0 _str0
+  j _error
+null12:
+  move $a0 $s0
+  li $a1 24
+  jal Tree.Search
+  move $t0 $v0
+  move $a0 $t0
+  jal _print
+  sw $t9 0($t0)
+  bnez $t0 null13
+  la $a0 _str0
+  j _error
+null13:
+  move $a0 $s0
+  li $a1 12
+  jal Tree.Search
+  move $t0 $v0
+  move $a0 $t0
+  jal _print
+  sw $t9 0($t0)
+  bnez $t0 null14
+  la $a0 _str0
+  j _error
+null14:
+  move $a0 $s0
+  li $a1 16
+  jal Tree.Search
+  move $t0 $v0
+  move $a0 $t0
+  jal _print
+  sw $t9 0($t0)
+  bnez $t0 null15
+  la $a0 _str0
+  j _error
+null15:
+  move $a0 $s0
+  li $a1 50
+  jal Tree.Search
+  move $t0 $v0
+  move $a0 $t0
+  jal _print
+  sw $t9 0($t0)
+  bnez $t0 null16
+  la $a0 _str0
+  j _error
+null16:
+  move $a0 $s0
+  li $a1 12
+  jal Tree.Search
+  move $t0 $v0
+  move $a0 $t0
+  jal _print
+  sw $t9 0($t0)
+  bnez $t0 null17
+  la $a0 _str0
+  j _error
+null17:
+  move $a0 $s0
+  li $a1 12
+  jal Tree.Delete
+  sw $t9 0($t0)
+  bnez $t0 null18
+  la $a0 _str0
+  j _error
+null18:
+  move $a0 $s0
+  jal Tree.Print
+  sw $t9 0($t0)
+  bnez $t0 null19
+  la $a0 _str0
+  j _error
+null19:
+  move $a0 $s0
+  li $a1 12
+  jal Tree.Search
+  move $t0 $v0
+  move $a0 $t0
+  jal _print
+  li $v0 0
+  lw $s0 0($sp)
+  lw $ra -4($fp)
+  lw $fp -8($fp)
+  addu $sp $sp 12
+  jr $ra
+
+Tree.Init:
+  sw $fp -8($sp)
+  move $fp $sp
+  subu $sp $sp 8
+  sw $ra -4($fp)
+  move $t0 $a0
+  move $t1 $a1
+  move $t0 $v0

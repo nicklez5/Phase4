@@ -202,7 +202,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
 
             }
             VOperand list_args = w.source;
-
+            VOperand.Static temp_label = (VOperand.Static)list_args;
 
             if(list_args instanceof VLitStr){
                 //System.out.println("VMemWrite - String Literal Argument: " + list_args.toString());
@@ -213,13 +213,13 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
                     //System.out.println("VMemWrite - Local Argument: " + temp_var_ref_local.toString());
 
                 }
-            }else if(list_args instanceof VLitInt){
+            }else if(temp_label instanceof VLitInt){
                 VOperand.Static list_value = (VOperand.Static)list_args;
                 VLitInt integer_literal = (VLitInt)list_value;
                 //System.out.println("VMemWrite - Integer Literal: " + integer_literal.toString());
 
-            }else if(list_args instanceof VLabelRef){
-                VLabelRef temp_label_ref = (VLabelRef)list_args;
+            }else if(temp_label instanceof VLabelRef){
+                VLabelRef temp_label_ref = (VLabelRef)temp_label;
                 System.out.println("  " + "la $t9 " + temp_label_ref.ident);
             }
         }

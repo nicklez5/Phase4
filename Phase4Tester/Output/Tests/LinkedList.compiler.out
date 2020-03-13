@@ -1,0 +1,67 @@
+.data
+
+vmt_Element:
+  Element.Init
+  Element.GetAge
+  Element.GetSalary
+  Element.GetMarried
+  Element.Equal
+  Element.Compare
+
+vmt_List:
+  List.Init
+  List.InitNew
+  List.Insert
+  List.SetNext
+  List.Delete
+  List.Search
+  List.GetEnd
+  List.GetElem
+  List.GetNext
+  List.Print
+
+vmt_LL:
+  LL.Start
+
+.text
+
+  jal Main
+  li $v0 10
+  syscall
+
+Main:
+  sw $fp -8($sp)
+  move $fp $sp
+  subu $sp $sp 8
+  sw $ra -4($fp)
+  li $a0 4
+  jal _heapAlloc
+  move $t0 $v0
+  la $t9 vmt_LL
+  sw $t9 0($t0)
+  bnez $t0 null1
+  la $a0 _str0
+  j _error
+null1:
+  lw $t1 0($t0)
+  lw $t1 0($t1)
+  move $a0 $t0
+  jalr $t1
+  move $t1 $v0
+  move $a0 $t1
+  jal _print
+  lw $ra -4($fp)
+  lw $fp -8($fp)
+  addu $sp $sp 8
+  jr $ra
+
+Element.Init:
+  sw $fp -8($sp)
+  move $fp $sp
+  subu $sp $sp 8
+  sw $ra -4($fp)
+  move $t0 $a0
+  move $t1 $a1
+  move $t2 $a2
+  move $t3 $a3
+  move $t0 $v0
