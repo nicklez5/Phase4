@@ -8,9 +8,14 @@ import cs132.vapor.ast.VMemRef.Stack;
 public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeException>{
     public int t;
     public Set<String> access_set;
+    public Map<Integer,List<String>> node_label_map;
     public Node_Visitor(){
         t = 0;
         access_set = new HashSet<String>();
+        node_label_map = new HashMap<Integer,List<String>>();
+    }
+    public void set_local_label_map(Map<Integer,List<String>> temp_map){
+        node_label_map = temp_map;
     }
     public void init_t(){
         t = 0;
@@ -23,7 +28,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
 
         if(a.source instanceof VLitStr){
             VLitStr temp_x = (VLitStr)a.source;
-            //System.out.println("VAssign - String Value: " + temp_x.toString());
+            System.out.println("VAssign - String Value: " + temp_x.toString());
 
         }else if(a.source instanceof VLitInt){
             VOperand.Static list_args = (VOperand.Static)a.source;
@@ -95,7 +100,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
     public String return_cmp_label(String built_in_label){
         String _ret = "";
         if(built_in_label.contains("LtS")){
-            _ret = "slti";
+            _ret = "slt";
         }else if(built_in_label.contains("Sub")){
             _ret = "subu";
         }else if(built_in_label.contains("Add")){
@@ -105,6 +110,38 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
         }
         return _ret;
     }
+    public String check_args(VOperand[] lists_argz, String cmp_stringz){
+        String _ret = cmp_stringz;
+        boolean number_true = false;
+        String _value = "";
+        for(int i = 0;i < lists_argz.length;i++){
+            if(lists_argz[i] instanceof VLitInt){
+                VLitInt lit_interal = (VLitInt)lists_argz[i];
+                number_true = true;
+                _value = lit_interal.toString();
+                break;
+            }
+        }
+        if(number_true){
+            if(cmp_stringz.equals("slt")){
+                _ret = "slti";
+            }else if(cmp_stringz.equals("subu")){
+                System.out.println("  li $t9 " + _value);
+            }
+
+        }
+
+
+        return _ret;
+    }
+    public boolean check_if_number(VOperand[] list_args){
+        for(int i = 0 ; i < list_args.length ; i++){
+            if(list_args[i] instanceof VLitInt){
+                return true;
+            }
+        }
+        return false;
+    }
     /*
     Op op - operation being performed
     VOperand[] args- arguments to the operations
@@ -113,6 +150,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
     public String visit(Integer p ,VBuiltIn c) {
         String _ret = "";
         boolean cmp_value = false;
+        boolean int_value = false;
         String built_in_label = c.op.name;
         String cmp_string = "";
         if(built_in_label.contains("LtS") || built_in_label.contains("Sub") || built_in_label.contains("Add") || built_in_label.contains("MulS")){
@@ -129,10 +167,23 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
         }
 
         VOperand[] list_args = c.args;
+        cmp_string = check_args(list_args,cmp_string);
+        int_value = check_if_number(list_args);
         for(int i = 0 ; i < list_args.length ; i++){
             if(cmp_value){
-                System.out.println("  " + cmp_string + " " + c.dest + " " + list_args[i].toString() + " " + list_args[i+1].toString());
-                break;
+                String _str_lhs = list_args[i].toString();
+                String _str_rhs = list_args[i+1].toString();
+                if(cmp_string.equals("subu") && int_value){
+                    if(_str_lhs.matches("-?\\d+(\\.\\d+)?")){
+                        System.out.println("  " + cmp_string + " " + c.dest + " $t9 " + _str_rhs);
+                    }else if(_str_rhs.matches("-?\\d+(\\.\\d+)?")){
+                        System.out.println("  " + cmp_string + " " + c.dest + " " + _str_lhs + " $t9");
+                    }
+                    break;
+                }else{
+                    System.out.println("  " + cmp_string + " " + c.dest + " " + list_args[i].toString() + " " + list_args[i+1].toString());
+                    break;
+                }
             }
             if(list_args[i] instanceof VLitStr){
                 //System.out.println("Index: " + Integer.toString(p)  + " VBuilt in - String Literal Argument " + i + ": " + list_args[i].toString());
@@ -184,7 +235,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
     */
     public String visit(Integer p , VMemWrite w){
         String _ret = "";
-
+        String _LHS = w.source.toString();
 
         if(w.dest instanceof VMemRef.Global){
 
@@ -197,8 +248,16 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
                 //System.out.println("Write to Addr of Label: " + temp_label.toString());
             }else if(holy_one instanceof VAddr.Var){
                 VAddr.Var temp_var = (VAddr.Var)holy_one;
-                //System.out.println("Write to Addr of Variable: " + temp_var.toString());
-                System.out.println("  " + "move " + temp_var.toString() + " $v0");
+                //System.out.println("Base Offset: " + c2.byteOffset);
+                if(c2.byteOffset == 0){
+                    System.out.println("  " + "move " + temp_var.toString() + " $v0");
+                }else{
+                    if(!_LHS.contains("$")){
+                        _LHS = "$" + _LHS;
+                    }
+                    System.out.println("  " + "sw " + _LHS + " " + c2.byteOffset + "(" + temp_var.toString() + ")");
+                }
+
 
             }
             VOperand list_args = w.source;
@@ -221,11 +280,22 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
             }else if(list_args instanceof VLabelRef){
                 VLabelRef temp_label_ref = (VLabelRef)list_args;
                 System.out.println("  " + "la $t9 " + temp_label_ref.ident);
+                System.out.println("  " + "sw $t9 0($t0)");
             }
         }
         return _ret;
 
         //System.out.println("VMemWrite was accessed");
+    }
+    public boolean check_if_label_contain(String label_id){
+
+        for(Map.Entry<Integer,List<String>> entry: node_label_map.entrySet()){
+            List<String> label_name_list = entry.getValue();
+            if(label_name_list.contains(label_id)){
+                return true;
+            }
+        }
+        return false;
     }
     /*
     VVarRef dest - variable/register to store the value isnt_found
@@ -243,7 +313,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
                 //System.out.println("Read Addr of Label: " + temp_label.toString());
             }else if(c2 instanceof VAddr.Var){
                 VAddr.Var temp_var = (VAddr.Var)c2;
-                System.out.println("  " + "lw " + _dest + " 0(" + temp_var.toString() + ")");
+                System.out.println("  " + "lw " + _dest + " " + _global.byteOffset + "(" + temp_var.toString() + ")");
 
             }
         }
@@ -265,8 +335,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
         //System.out.println("Current_index: " + Integer.toString(p) + " Goto branch " + b.target.toString());
         //System.out.println("Branch Boolean Value: " + b.positive);
         if(b.positive){
-            System.out.println("  " + "sw $t9 0($t0)");
-            System.out.println("  " + "bnez $t0 " + branch_target);
+            System.out.println("  " + "bnez " + b.value + " " + branch_target);
         }else{
             System.out.println("  " + "beqz " + b.value + " " + branch_target);
         }
@@ -303,6 +372,20 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
             String str_value = temp_g2.toString();
             str_value = str_value.replace(":","");
             System.out.println("  " + "j " + str_value);
+            if(!check_if_label_contain(str_value)){
+                List<String> temp_list = new ArrayList<String>();
+                if(node_label_map.containsKey(p+node_label_map.size()-1)){
+                    temp_list.add(str_value);
+                    temp_list.addAll(node_label_map.get(p+node_label_map.size()-1));
+                    node_label_map.replace(p+node_label_map.size()-1,temp_list);
+                }else{
+                    temp_list.add(str_value);
+                    node_label_map.put(p+node_label_map.size()-1,temp_list);
+                }
+
+            }
+
+            //check if the str value is in the label map or vector.
             //System.out.println("Current_index: " + Integer.toString(p) + " Goto " + temp_g2.toString());
             _ret = temp_g2.toString();
 

@@ -15,7 +15,7 @@ public class VM2M{
     public VFunction[] list_functions;
     public VDataSegment[] list_data;
     public Node_Visitor node_visit;
-    public List<Map<Integer,String>> label_map;
+    public List<Map<Integer,List<String>>> label_map;
     public static VaporProgram parseVapor(InputStream in, PrintStream err) throws IOException {
         Op[] ops = {
             Op.Add, Op.Sub, Op.MulS, Op.Eq, Op.Lt, Op.LtS,
@@ -53,6 +53,7 @@ public class VM2M{
             VM2M godfather = new VM2M(xyz);
             godfather.extract_label_data();
             godfather.big_print_data();
+            godfather.print_labels();
         }
     }
 
@@ -61,9 +62,22 @@ public class VM2M{
         node_visit = new Node_Visitor();
         list_functions = file_program.functions;
         list_data = file_program.dataSegments;
-        label_map = new ArrayList< Map<Integer,String> >();
+        label_map = new ArrayList< Map<Integer,List<String>> >();
 
 
+    }
+
+    public void print_labels(){
+        for(int i = 0 ; i < label_map.size() ; i++){
+            Map<Integer,List<String>> perm_map = label_map.get(i);
+            System.out.println("Function: " + i);
+            for(Map.Entry<Integer,List<String>> entry : perm_map.entrySet()){
+                List<String> list_of_values = entry.getValue();
+                for(String temp: list_of_values){
+                    System.out.println("Label Line no: " + entry.getKey() + " Label ID: " + temp);
+                }
+            }
+        }
     }
     public void visit_instruction(int k, VInstr temp_instruction){
 
@@ -135,10 +149,12 @@ public class VM2M{
     public void extract_label_data(){
         for(int i = 0; i < list_functions.length ; i++){
             VFunction temp_function = list_functions[i];
-            Map<Integer,String> line_no_label = new HashMap<Integer,String>();
+            Map<Integer,List<String>> line_no_label = new HashMap<Integer,List<String>>();
             for(int xyz = 0; xyz < temp_function.labels.length; xyz++){
+                List<String> temp_list = new ArrayList<String>();
                 VCodeLabel code_label = temp_function.labels[xyz];
-                line_no_label.put(code_label.instrIndex,code_label.ident);
+                temp_list.add(code_label.ident);
+                line_no_label.put(code_label.instrIndex,temp_list);
             }
             label_map.add(line_no_label);
         }
@@ -204,13 +220,17 @@ public class VM2M{
             System.out.println(temp_function.ident + ":");
             entry_to_function(temp_function);
             save_stack(temp_function);
-            Map<Integer,String> current_label_map = label_map.get(i);
+            Map<Integer,List<String>> current_label_map = label_map.get(i);
+            node_visit.set_local_label_map(current_label_map);
             int current_t = 0;
             for(int xyz_2 = 0; xyz_2 < temp_function.body.length; xyz_2++){
                 VInstr instruction = temp_function.body[xyz_2];
-
                 if(current_label_map.containsKey(xyz_2)){
-                    System.out.println(current_label_map.get(xyz_2) + ":");
+                    List<String> temp_list = current_label_map.get(xyz_2);
+                    for(String label_id : temp_list){
+                        System.out.println(label_id + ":");
+                    }
+                    
                 }
                 visit_instruction(xyz_2,instruction);
 
