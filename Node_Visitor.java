@@ -152,6 +152,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
         boolean cmp_value = false;
         boolean int_value = false;
         String built_in_label = c.op.name;
+        String dest_value = "";
         String cmp_string = "";
         if(built_in_label.contains("LtS") || built_in_label.contains("Sub") || built_in_label.contains("Add") || built_in_label.contains("MulS")){
             cmp_string = return_cmp_label(built_in_label);
@@ -162,8 +163,11 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
         //System.out.println("Destination: " + c.dest);
         if(c.dest instanceof VVarRef.Local){
             VVarRef.Local temp_local = (VVarRef.Local)c.dest;
+            dest_value = temp_local.toString();
             //System.out.println("Dest Local: " + temp_local.toString());
-
+        }else if(c.dest instanceof VVarRef.Register){
+            VVarRef.Register temp_reg = (VVarRef.Register)c.dest;
+            dest_value = temp_reg.toString();
         }
 
         VOperand[] list_args = c.args;
@@ -210,16 +214,20 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
 
             }
         }
-        return_built_in(built_in_label);
+        return_built_in(built_in_label, dest_value);
+
         return _ret;
     }
-    public void return_built_in(String op_name){
+    public void return_built_in(String op_name, String dest_name){
         String _ret = "";
         if(op_name.equals("HeapAllocZ")){
             _ret = op_name.replace("H","h");
             _ret = _ret.replace("Z","");
             _ret = "_" + _ret;
             System.out.println("  " + "jal " + _ret);
+            if(dest_name.contains("$s")){
+                System.out.println("  " + "move " + dest_name + " $v0");
+            }
             access_set.add("heap");
         }else if(op_name.equals("Error")){
             System.out.println("  " + "j _error");
@@ -238,7 +246,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
         String _LHS = w.source.toString();
 
         if(w.dest instanceof VMemRef.Global){
-
+            VOperand list_args = w.source;
             //VMemRef data = w.dest;
             VMemRef.Global c2 = (VMemRef.Global)w.dest;
 
@@ -250,7 +258,12 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
                 VAddr.Var temp_var = (VAddr.Var)holy_one;
                 //System.out.println("Base Offset: " + c2.byteOffset);
                 if(c2.byteOffset == 0){
-                    System.out.println("  " + "move " + temp_var.toString() + " $v0");
+                    if(list_args instanceof VVarRef.Register){
+                        VVarRef.Register holy_reg = (VVarRef.Register)list_args;
+                        System.out.println("  " + "sw $" + holy_reg.ident + " 0(" + temp_var.toString() + ")");
+                    }else if(list_args instanceof VLabelRef){
+                        System.out.println("  " + "move " + temp_var.toString() + " $v0");
+                    }
                 }else{
                     if(!_LHS.contains("$")){
                         _LHS = "$" + _LHS;
@@ -260,7 +273,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
 
 
             }
-            VOperand list_args = w.source;
+
 
 
             if(list_args instanceof VLitStr){
@@ -372,18 +385,20 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
             String str_value = temp_g2.toString();
             str_value = str_value.replace(":","");
             System.out.println("  " + "j " + str_value);
+            /*
             if(!check_if_label_contain(str_value)){
                 List<String> temp_list = new ArrayList<String>();
-                if(node_label_map.containsKey(p+node_label_map.size()-1)){
+                if(node_label_map.containsKey(p+2)){
                     temp_list.add(str_value);
-                    temp_list.addAll(node_label_map.get(p+node_label_map.size()-1));
-                    node_label_map.replace(p+node_label_map.size()-1,temp_list);
+                    temp_list.addAll(node_label_map.get(p+2));
+                    node_label_map.replace(p+2,temp_list);
                 }else{
                     temp_list.add(str_value);
-                    node_label_map.put(p+node_label_map.size()-1,temp_list);
+                    node_label_map.put(p+2,temp_list);
                 }
 
             }
+            */
 
             //check if the str value is in the label map or vector.
             //System.out.println("Current_index: " + Integer.toString(p) + " Goto " + temp_g2.toString());

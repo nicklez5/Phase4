@@ -52,8 +52,9 @@ public class VM2M{
         if(xyz != null){
             VM2M godfather = new VM2M(xyz);
             godfather.extract_label_data();
+            godfather.extract_more_label_data();
             godfather.big_print_data();
-            godfather.print_labels();
+            //godfather.print_labels();
         }
     }
 
@@ -146,6 +147,64 @@ public class VM2M{
         System.out.println("  " + "addu $sp $sp " + total_value * 4);
         System.out.println("  " + "jr $ra");
     }
+    public boolean check_label_found(Map<Integer,List<String>> temp_map_xyz, String label_name){
+        for(Map.Entry<Integer,List<String>> entry: temp_map_xyz.entrySet()){
+            List<String> label_name_list = entry.getValue();
+            if(label_name_list.contains(label_name)){
+                return true;
+            }
+        }
+        return false;
+    }
+    public void extract_more_label_data(){
+        for(int i = 0; i < list_functions.length ; i++){
+            VFunction temp_function = list_functions[i];
+            Map<Integer,List<String>> temp_label_map = label_map.get(i);
+            for(int j = 0; j < temp_function.body.length;j++){
+                VInstr temp_instruction = temp_function.body[j];
+                if(temp_instruction instanceof VGoto){
+                    VGoto temp_goto = (VGoto)temp_instruction;
+                    VAddr<VCodeLabel> temp_goto_target = temp_goto.target;
+                    if(temp_goto_target instanceof VAddr.Label){
+                        VAddr.Label the_label = (VAddr.Label)temp_goto_target;
+                        VLabelRef temp_goto_target_label = the_label.label;
+                        VCodeLabel get_label = (VCodeLabel)temp_goto_target_label.getTarget();
+                        String label_name = temp_goto_target_label.ident;
+                        int label_index = get_label.instrIndex;
+                        List<String> local_list = new ArrayList<String>();
+                        if(!check_label_found(temp_label_map,label_name)){
+                            if(temp_label_map.containsKey(label_index)){
+                                local_list.add(label_name);
+                                local_list.addAll(temp_label_map.get(label_index));
+                                temp_label_map.replace(label_index,local_list);
+                            }else{
+                                local_list.add(label_name);
+                                temp_label_map.put(label_index,local_list);
+                            }
+                        }
+                    }
+
+                }else if(temp_instruction instanceof VBranch){
+                    VBranch temp_branch = (VBranch)temp_instruction;
+                    VLabelRef label_ref = temp_branch.target;
+                    VCodeLabel code_label = (VCodeLabel)label_ref.getTarget();
+                    String label_name = label_ref.ident;
+                    int label_index = code_label.instrIndex;
+                    List<String> local_list2 = new ArrayList<String>();
+                    if(!check_label_found(temp_label_map,label_name)){
+                        if(temp_label_map.containsKey(label_index)){
+                            local_list2.add(label_name);
+                            local_list2.addAll(temp_label_map.get(label_index));
+                            temp_label_map.replace(label_index,local_list2);
+                        }else{
+                            local_list2.add(label_name);
+                            temp_label_map.put(label_index,local_list2);
+                        }
+                    }
+                }
+            }
+        }
+    }
     public void extract_label_data(){
         for(int i = 0; i < list_functions.length ; i++){
             VFunction temp_function = list_functions[i];
@@ -230,7 +289,7 @@ public class VM2M{
                     for(String label_id : temp_list){
                         System.out.println(label_id + ":");
                     }
-                    
+
                 }
                 visit_instruction(xyz_2,instruction);
 

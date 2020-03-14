@@ -51,7 +51,8 @@ Fac.ComputeFac:
 if1_else:
   lw $t2 0($t0)
   lw $t2 0($t2)
-  subu $t3 $s0 1
+  li $t9 1
+  subu $t3 $s0 $t9
   move $a0 $t0
   move $a1 $t3
   jalr $t2

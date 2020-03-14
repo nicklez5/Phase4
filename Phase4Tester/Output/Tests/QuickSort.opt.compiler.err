@@ -1,5 +1,0 @@
-Exception in thread "main" java.lang.ClassCastException: class cs132.vapor.ast.VVarRef$Register cannot be cast to class cs132.vapor.ast.VOperand$Static (cs132.vapor.ast.VVarRef$Register and cs132.vapor.ast.VOperand$Static are in unnamed module of loader 'app')
-	at Node_Visitor.visit(Node_Visitor.java:205)
-	at VM2M.visit_instruction(VM2M.java:78)
-	at VM2M.big_print_data(VM2M.java:215)
-	at VM2M.main(VM2M.java:55)

@@ -714,7 +714,6 @@ null37:
   j ss1_end
 ss1_else:
   li $t0 0
-if8_end:
 ss1_end:
   beqz $t0 if11_else
   j if11_end
@@ -737,6 +736,7 @@ if10_else:
 if10_end:
   li $s5 1
   li $s4 0
+if8_end:
 if6_end:
   li $s6 0
   j while2_top
@@ -816,7 +816,6 @@ null40:
 null41:
   lw $t0 0($s1)
   lw $t0 16($t0)
-if13_end:
   move $a0 $s1
   jalr $t0
   move $t0 $v0
@@ -874,10 +873,11 @@ null45:
 null46:
   lw $t0 0($s1)
   lw $t0 40($t0)
-if14_end:
   move $a0 $s1
   li $a1 0
   jalr $t0
+if14_end:
+if13_end:
 if12_end:
   li $v0 1
   lw $s0 0($sp)
@@ -1151,6 +1151,7 @@ if18_end:
 if17_else:
   li $s3 1
   li $s2 0
+if17_end:
 if15_end:
   j while5_top
 while5_end:
@@ -1217,6 +1218,7 @@ null67:
   move $a1 $t0
   jalr $s2
   j if19_end
+if19_else:
 if19_end:
   bnez $s1 null68
   la $a0 _str0
@@ -1254,6 +1256,7 @@ null70:
   move $a1 $t0
   jalr $s2
   j if20_end
+if20_else:
 if20_end:
   li $v0 1
   lw $s0 0($sp)
@@ -1328,6 +1331,7 @@ null74:
   move $a1 $s0
   jalr $t1
   j if21_end
+if21_else:
 if21_end:
   bnez $s1 null75
   la $a0 _str0
@@ -1360,6 +1364,7 @@ null77:
   move $a1 $s0
   jalr $t0
   j if22_end
+if22_else:
 if22_end:
   li $v0 0
   lw $s0 0($sp)
@@ -1409,6 +1414,7 @@ null80:
   move $a1 $s0
   jalr $t1
   j if23_end
+if23_else:
 if23_end:
   bnez $s1 null81
   la $a0 _str0
@@ -1452,6 +1458,7 @@ null84:
   move $a1 $s0
   jalr $t0
   j if24_end
+if24_else:
 if24_end:
   li $v0 0
   lw $s0 0($sp)
@@ -1484,166 +1491,3 @@ _heapAlloc:
 .align 0
 _newline: .asciiz "\n"
 _str0: .asciiz "null pointer\n"
-Function: 0
-Label Line no: 4 Label ID: null1
-Function: 1
-Label Line no: 97 Label ID: null14
-Label Line no: 34 Label ID: null6
-Label Line no: 69 Label ID: null11
-Label Line no: 133 Label ID: null18
-Label Line no: 6 Label ID: null2
-Label Line no: 41 Label ID: null7
-Label Line no: 106 Label ID: null15
-Label Line no: 140 Label ID: null19
-Label Line no: 13 Label ID: null3
-Label Line no: 48 Label ID: null8
-Label Line no: 80 Label ID: null12
-Label Line no: 146 Label ID: null20
-Label Line no: 115 Label ID: null16
-Label Line no: 20 Label ID: null4
-Label Line no: 55 Label ID: null9
-Label Line no: 88 Label ID: null13
-Label Line no: 27 Label ID: null5
-Label Line no: 124 Label ID: null17
-Label Line no: 62 Label ID: null10
-Function: 2
-Function: 3
-Function: 4
-Function: 5
-Function: 6
-Function: 7
-Function: 8
-Function: 9
-Function: 10
-Function: 11
-Function: 12
-Function: 13
-Label Line no: 7 Label ID: if1_else
-Label Line no: 12 Label ID: if2_else
-Label Line no: 13 Label ID: if2_end
-Label Line no: 13 Label ID: if1_end
-Function: 14
-Label Line no: 38 Label ID: null24
-Label Line no: 70 Label ID: null28
-Label Line no: 11 Label ID: null21
-Label Line no: 44 Label ID: if4_else
-Label Line no: 76 Label ID: if5_else
-Label Line no: 47 Label ID: null25
-Label Line no: 79 Label ID: null29
-Label Line no: 18 Label ID: while1_top
-Label Line no: 21 Label ID: null22
-Label Line no: 54 Label ID: null26
-Label Line no: 86 Label ID: null30
-Label Line no: 59 Label ID: if4_end
-Label Line no: 91 Label ID: if5_end
-Label Line no: 91 Label ID: if3_end
-Label Line no: 60 Label ID: if3_else
-Label Line no: 92 Label ID: while1_end
-Label Line no: 30 Label ID: null23
-Label Line no: 62 Label ID: null27
-Function: 15
-Label Line no: 64 Label ID: if8_else
-Label Line no: 35 Label ID: null33
-Label Line no: 67 Label ID: null36
-Label Line no: 99 Label ID: if10_end
-Label Line no: 101 Label ID: if6_end
-Label Line no: 103 Label ID: while2_end
-Label Line no: 41 Label ID: if7_else
-Label Line no: 42 Label ID: if7_end
-Label Line no: 43 Label ID: if6_else
-Label Line no: 76 Label ID: null37
-Label Line no: 14 Label ID: while2_top
-Label Line no: 47 Label ID: null34
-Label Line no: 17 Label ID: null31
-Label Line no: 83 Label ID: ss1_else
-Label Line no: 84 Label ID: if8_end
-Label Line no: 84 Label ID: ss1_end
-Label Line no: 86 Label ID: if11_else
-Label Line no: 56 Label ID: null35
-Label Line no: 26 Label ID: null32
-Label Line no: 92 Label ID: if11_end
-Label Line no: 93 Label ID: if10_else
-Label Line no: 62 Label ID: if9_else
-Label Line no: 63 Label ID: if9_end
-Function: 16
-Label Line no: 96 Label ID: if12_end
-Label Line no: 67 Label ID: null43
-Label Line no: 36 Label ID: if13_else
-Label Line no: 38 Label ID: null40
-Label Line no: 8 Label ID: null38
-Label Line no: 75 Label ID: null44
-Label Line no: 45 Label ID: null41
-Label Line no: 47 Label ID: if13_end
-Label Line no: 81 Label ID: if14_else
-Label Line no: 83 Label ID: null45
-Label Line no: 52 Label ID: null42
-Label Line no: 21 Label ID: if12_else
-Label Line no: 23 Label ID: null39
-Label Line no: 91 Label ID: null46
-Label Line no: 93 Label ID: if14_end
-Function: 17
-Label Line no: 17 Label ID: null48
-Label Line no: 21 Label ID: null49
-Label Line no: 7 Label ID: while3_top
-Label Line no: 39 Label ID: null51
-Label Line no: 55 Label ID: null53
-Label Line no: 9 Label ID: null47
-Label Line no: 28 Label ID: null50
-Label Line no: 45 Label ID: while3_end
-Label Line no: 47 Label ID: null52
-Function: 18
-Label Line no: 17 Label ID: null55
-Label Line no: 21 Label ID: null56
-Label Line no: 7 Label ID: while4_top
-Label Line no: 39 Label ID: null58
-Label Line no: 55 Label ID: null60
-Label Line no: 9 Label ID: null54
-Label Line no: 28 Label ID: null57
-Label Line no: 45 Label ID: while4_end
-Label Line no: 47 Label ID: null59
-Function: 19
-Label Line no: 35 Label ID: if16_else
-Label Line no: 36 Label ID: if16_end
-Label Line no: 37 Label ID: if15_else
-Label Line no: 69 Label ID: if17_end
-Label Line no: 9 Label ID: while5_top
-Label Line no: 41 Label ID: null64
-Label Line no: 12 Label ID: null61
-Label Line no: 49 Label ID: null65
-Label Line no: 21 Label ID: null62
-Label Line no: 55 Label ID: if18_else
-Label Line no: 56 Label ID: if18_end
-Label Line no: 57 Label ID: if17_else
-Label Line no: 59 Label ID: if15_end
-Label Line no: 60 Label ID: while5_end
-Label Line no: 29 Label ID: null63
-Function: 20
-Function: 21
-Label Line no: 17 Label ID: null67
-Label Line no: 36 Label ID: null69
-Label Line no: 7 Label ID: null66
-Label Line no: 55 Label ID: if20_end
-Label Line no: 26 Label ID: if19_end
-Label Line no: 28 Label ID: null68
-Label Line no: 46 Label ID: null70
-Function: 22
-Label Line no: 5 Label ID: null71
-Function: 23
-Label Line no: 48 Label ID: null77
-Label Line no: 6 Label ID: null72
-Label Line no: 54 Label ID: if22_end
-Label Line no: 23 Label ID: null74
-Label Line no: 39 Label ID: null76
-Label Line no: 29 Label ID: if21_end
-Label Line no: 14 Label ID: null73
-Label Line no: 31 Label ID: null75
-Function: 24
-Label Line no: 6 Label ID: null78
-Label Line no: 23 Label ID: null80
-Label Line no: 39 Label ID: null82
-Label Line no: 56 Label ID: null84
-Label Line no: 29 Label ID: if23_end
-Label Line no: 14 Label ID: null79
-Label Line no: 62 Label ID: if24_end
-Label Line no: 31 Label ID: null81
-Label Line no: 47 Label ID: null83

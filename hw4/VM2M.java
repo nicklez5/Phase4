@@ -15,7 +15,7 @@ public class VM2M{
     public VFunction[] list_functions;
     public VDataSegment[] list_data;
     public Node_Visitor node_visit;
-    public List<Map<Integer,String>> label_map;
+    public List<Map<Integer,List<String>>> label_map;
     public static VaporProgram parseVapor(InputStream in, PrintStream err) throws IOException {
         Op[] ops = {
             Op.Add, Op.Sub, Op.MulS, Op.Eq, Op.Lt, Op.LtS,
@@ -52,7 +52,9 @@ public class VM2M{
         if(xyz != null){
             VM2M godfather = new VM2M(xyz);
             godfather.extract_label_data();
+            godfather.extract_more_label_data();
             godfather.big_print_data();
+            //godfather.print_labels();
         }
     }
 
@@ -61,9 +63,22 @@ public class VM2M{
         node_visit = new Node_Visitor();
         list_functions = file_program.functions;
         list_data = file_program.dataSegments;
-        label_map = new ArrayList< Map<Integer,String> >();
+        label_map = new ArrayList< Map<Integer,List<String>> >();
 
 
+    }
+
+    public void print_labels(){
+        for(int i = 0 ; i < label_map.size() ; i++){
+            Map<Integer,List<String>> perm_map = label_map.get(i);
+            System.out.println("Function: " + i);
+            for(Map.Entry<Integer,List<String>> entry : perm_map.entrySet()){
+                List<String> list_of_values = entry.getValue();
+                for(String temp: list_of_values){
+                    System.out.println("Label Line no: " + entry.getKey() + " Label ID: " + temp);
+                }
+            }
+        }
     }
     public void visit_instruction(int k, VInstr temp_instruction){
 
@@ -132,13 +147,73 @@ public class VM2M{
         System.out.println("  " + "addu $sp $sp " + total_value * 4);
         System.out.println("  " + "jr $ra");
     }
+    public boolean check_label_found(Map<Integer,List<String>> temp_map_xyz, String label_name){
+        for(Map.Entry<Integer,List<String>> entry: temp_map_xyz.entrySet()){
+            List<String> label_name_list = entry.getValue();
+            if(label_name_list.contains(label_name)){
+                return true;
+            }
+        }
+        return false;
+    }
+    public void extract_more_label_data(){
+        for(int i = 0; i < list_functions.length ; i++){
+            VFunction temp_function = list_functions[i];
+            Map<Integer,List<String>> temp_label_map = label_map.get(i);
+            for(int j = 0; j < temp_function.body.length;j++){
+                VInstr temp_instruction = temp_function.body[j];
+                if(temp_instruction instanceof VGoto){
+                    VGoto temp_goto = (VGoto)temp_instruction;
+                    VAddr<VCodeLabel> temp_goto_target = temp_goto.target;
+                    if(temp_goto_target instanceof VAddr.Label){
+                        VAddr.Label the_label = (VAddr.Label)temp_goto_target;
+                        VLabelRef temp_goto_target_label = the_label.label;
+                        VCodeLabel get_label = (VCodeLabel)temp_goto_target_label.getTarget();
+                        String label_name = temp_goto_target_label.ident;
+                        int label_index = get_label.instrIndex;
+                        List<String> local_list = new ArrayList<String>();
+                        if(!check_label_found(temp_label_map,label_name)){
+                            if(temp_label_map.containsKey(label_index)){
+                                local_list.add(label_name);
+                                local_list.addAll(temp_label_map.get(label_index));
+                                temp_label_map.replace(label_index,local_list);
+                            }else{
+                                local_list.add(label_name);
+                                temp_label_map.put(label_index,local_list);
+                            }
+                        }
+                    }
+
+                }else if(temp_instruction instanceof VBranch){
+                    VBranch temp_branch = (VBranch)temp_instruction;
+                    VLabelRef label_ref = temp_branch.target;
+                    VCodeLabel code_label = (VCodeLabel)label_ref.getTarget();
+                    String label_name = label_ref.ident;
+                    int label_index = code_label.instrIndex;
+                    List<String> local_list2 = new ArrayList<String>();
+                    if(!check_label_found(temp_label_map,label_name)){
+                        if(temp_label_map.containsKey(label_index)){
+                            local_list2.add(label_name);
+                            local_list2.addAll(temp_label_map.get(label_index));
+                            temp_label_map.replace(label_index,local_list2);
+                        }else{
+                            local_list2.add(label_name);
+                            temp_label_map.put(label_index,local_list2);
+                        }
+                    }
+                }
+            }
+        }
+    }
     public void extract_label_data(){
         for(int i = 0; i < list_functions.length ; i++){
             VFunction temp_function = list_functions[i];
-            Map<Integer,String> line_no_label = new HashMap<Integer,String>();
+            Map<Integer,List<String>> line_no_label = new HashMap<Integer,List<String>>();
             for(int xyz = 0; xyz < temp_function.labels.length; xyz++){
+                List<String> temp_list = new ArrayList<String>();
                 VCodeLabel code_label = temp_function.labels[xyz];
-                line_no_label.put(code_label.instrIndex,code_label.ident);
+                temp_list.add(code_label.ident);
+                line_no_label.put(code_label.instrIndex,temp_list);
             }
             label_map.add(line_no_label);
         }
@@ -204,13 +279,17 @@ public class VM2M{
             System.out.println(temp_function.ident + ":");
             entry_to_function(temp_function);
             save_stack(temp_function);
-            Map<Integer,String> current_label_map = label_map.get(i);
+            Map<Integer,List<String>> current_label_map = label_map.get(i);
+            node_visit.set_local_label_map(current_label_map);
             int current_t = 0;
             for(int xyz_2 = 0; xyz_2 < temp_function.body.length; xyz_2++){
                 VInstr instruction = temp_function.body[xyz_2];
-
                 if(current_label_map.containsKey(xyz_2)){
-                    System.out.println(current_label_map.get(xyz_2) + ":");
+                    List<String> temp_list = current_label_map.get(xyz_2);
+                    for(String label_id : temp_list){
+                        System.out.println(label_id + ":");
+                    }
+
                 }
                 visit_instruction(xyz_2,instruction);
 

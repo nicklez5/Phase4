@@ -61,7 +61,7 @@ MT4.Start:
   move $a0 $t6
   jal _print
   lw $t7 0($t0)
-  lw $t7 0($t7)
+  lw $t7 4($t7)
   move $a0 $t0
   move $a1 $t6
   move $a2 $t5
