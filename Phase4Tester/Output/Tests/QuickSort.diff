@@ -1,37 +1,24 @@
 --- SelfTestCases/QuickSort.out	2011-04-28 14:55:21.000000000 -0700
-+++ ./Output/Tests/QuickSort.out	2020-03-14 13:04:39.425787016 -0700
-@@ -1,23 +1,12 @@
--20
--7
--12
--18
--2
--11
--6
--9
--19
--5
--9999
++++ ./Output/Tests/QuickSort.out	2020-03-14 21:50:47.122514388 -0700
+@@ -9,15 +9,15 @@
+ 19
+ 5
+ 9999
 -2
 -5
--6
+ 6
 -7
 -9
--11
+ 11
 -12
 -18
--19
--20
--0
-+Error in /home/jackson/Desktop/phase4/Phase4Tester/./Output/Tests/QuickSort.compiler.out line 397 column 11: "0": operand is of incorrect type
-+Error in /home/jackson/Desktop/phase4/Phase4Tester/./Output/Tests/QuickSort.compiler.out line 411 column 11: "1": operand is of incorrect type
-+Error in /home/jackson/Desktop/phase4/Phase4Tester/./Output/Tests/QuickSort.compiler.out line 425 column 11: "2": operand is of incorrect type
-+Error in /home/jackson/Desktop/phase4/Phase4Tester/./Output/Tests/QuickSort.compiler.out line 439 column 11: "3": operand is of incorrect type
-+Error in /home/jackson/Desktop/phase4/Phase4Tester/./Output/Tests/QuickSort.compiler.out line 453 column 11: "4": operand is of incorrect type
-+Error in /home/jackson/Desktop/phase4/Phase4Tester/./Output/Tests/QuickSort.compiler.out line 467 column 11: "5": operand is of incorrect type
-+Error in /home/jackson/Desktop/phase4/Phase4Tester/./Output/Tests/QuickSort.compiler.out line 481 column 11: "6": operand is of incorrect type
-+Error in /home/jackson/Desktop/phase4/Phase4Tester/./Output/Tests/QuickSort.compiler.out line 495 column 11: "7": operand is of incorrect type
-+Error in /home/jackson/Desktop/phase4/Phase4Tester/./Output/Tests/QuickSort.compiler.out line 509 column 11: "8": operand is of incorrect type
-+Error in /home/jackson/Desktop/phase4/Phase4Tester/./Output/Tests/QuickSort.compiler.out line 523 column 11: "9": operand is of incorrect type
++9
+ 19
++5
++7
+ 20
++2
++12
++18
+ 0
  
-+Processing terminated due to errors.

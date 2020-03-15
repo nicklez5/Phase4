@@ -237,6 +237,7 @@ public class VM2M{
         }
     }
     public void ending_print(){
+        boolean array_print = false;
         do{
             if(node_visit.access_set.contains("print")){
                 System.out.println("_print:");
@@ -263,6 +264,9 @@ public class VM2M{
                 System.out.println("  " + "jr $ra");
                 System.out.println("");
                 node_visit.access_set.remove("heap");
+            }else if(node_visit.access_set.contains("array")){
+                array_print = true;
+                node_visit.access_set.remove("array");
             }
         }while(node_visit.access_set.size() != 0);
 
@@ -270,7 +274,9 @@ public class VM2M{
         System.out.println(".align 0");
         System.out.println("_newline: .asciiz \"\\n\"");
         System.out.println("_str0: .asciiz \"null pointer\\n\"");
-
+        if(array_print){
+            System.out.println("_str1: .asciiz \"array index out of bounds\\n\"");
+        }
     }
     public void big_print_data(){
         etc_print();

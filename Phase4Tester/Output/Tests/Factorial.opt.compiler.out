@@ -37,8 +37,7 @@ Fac.ComputeFac:
   li $t1 1
   j if1_end
 if1_else:
-  li $t9 1
-  subu $t2 $s0 $t9
+  subu $t2 $s0 1
   move $a0 $t0
   move $a1 $t2
   jal Fac.ComputeFac

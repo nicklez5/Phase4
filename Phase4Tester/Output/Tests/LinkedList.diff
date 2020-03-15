@@ -1,5 +1,5 @@
 --- SelfTestCases/LinkedList.out	2011-04-28 14:55:21.000000000 -0700
-+++ ./Output/Tests/LinkedList.out	2020-03-14 13:04:33.785787164 -0700
++++ ./Output/Tests/LinkedList.out	2020-03-14 21:50:40.326514317 -0700
 @@ -1,27 +1,4 @@
 -25
 -10000000
@@ -27,7 +27,7 @@
 -25
 -44440000
 -0
-+Error in /home/jackson/Desktop/phase4/Phase4Tester/./Output/Tests/LinkedList.compiler.out line 338 column 6: "$s8": operand is of incorrect type
-+Error in /home/jackson/Desktop/phase4/Phase4Tester/./Output/Tests/LinkedList.compiler.out line 461 column 6: "$s8": operand is of incorrect type
++Error in /home/jackson/Desktop/phase4/Phase4Tester/./Output/Tests/LinkedList.compiler.out line 335 column 6: "$s8": operand is of incorrect type
++Error in /home/jackson/Desktop/phase4/Phase4Tester/./Output/Tests/LinkedList.compiler.out line 452 column 6: "$s8": operand is of incorrect type
  
 +Processing terminated due to errors.

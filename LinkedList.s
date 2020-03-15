@@ -140,6 +140,7 @@ null2:
   move $a2 $t2
   jalr $t1
   move $t2 $v0
+  li $t9 1
   subu $t2 $t9 $t2
   beqz $t2 if1_else
   li $s2 0
@@ -162,6 +163,7 @@ null3:
   move $a2 $t0
   jalr $t1
   move $t0 $v0
+  li $t9 1
   subu $t0 $t9 $t0
   beqz $t0 if2_else
   li $s2 0
@@ -178,6 +180,7 @@ null4:
   move $a0 $s1
   jalr $t0
   move $t0 $v0
+  li $t9 1
   subu $t0 $t9 $t0
   beqz $t0 if4_else
   li $s2 0
@@ -198,8 +201,8 @@ null5:
   beqz $t0 if5_else
   li $s2 0
   j if5_end
-if5_end:
 if5_else:
+if5_end:
 if3_end:
 if2_end:
 if1_end:
@@ -226,6 +229,7 @@ Element.Compare:
   j if6_end
 if6_else:
   slt $t2 $t0 $t2
+  li $t9 1
   subu $t2 $t9 $t2
   beqz $t2 if7_else
   li $t1 0
@@ -343,8 +347,10 @@ List.Delete:
   lw $s6 12($t0)
   lw $s7 4($t0)
 while1_top:
+  li $t9 1
   subu $t0 $t9 $s6
   beqz $t0 ss1_else
+  li $t9 1
   subu $t0 $t9 $s2
   j ss1_end
 ss1_else:
@@ -404,6 +410,7 @@ if9_end:
   j if8_end
 if8_else:
 if8_end:
+  li $t9 1
   subu $t0 $t9 $s2
   beqz $t0 if10_else
   move $s5 $s4
@@ -471,6 +478,7 @@ List.Search:
   lw $s3 12($t0)
   lw $t0 4($t0)
 while2_top:
+  li $t9 1
   subu $t1 $t9 $s3
   beqz $t1 while2_end
   bnez $s0 null14
@@ -578,6 +586,7 @@ List.Print:
   lw $s1 12($t0)
   lw $t0 4($t0)
 while3_top:
+  li $t9 1
   subu $t1 $t9 $s1
   beqz $t1 while3_end
   bnez $t0 null18

@@ -107,6 +107,8 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
             _ret = "addu";
         }else if(built_in_label.contains("MulS")){
             _ret = "mul";
+        }else if(built_in_label.contains("Lt")){
+            _ret = "sltu";
         }
         return _ret;
     }
@@ -114,19 +116,27 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
         String _ret = cmp_stringz;
         boolean number_true = false;
         String _value = "";
-        for(int i = 0;i < lists_argz.length;i++){
+        boolean _lhs_number = false;
+
+        for(int i = 0;i < lists_argz.length ;i++){
             if(lists_argz[i] instanceof VLitInt){
                 VLitInt lit_interal = (VLitInt)lists_argz[i];
                 number_true = true;
                 _value = lit_interal.toString();
                 break;
             }
+            if(lists_argz[0] instanceof VLitInt){
+                _lhs_number = true;
+            }
+
         }
         if(number_true){
             if(cmp_stringz.equals("slt")){
                 _ret = "slti";
             }else if(cmp_stringz.equals("subu")){
-                System.out.println("  li $t9 " + _value);
+                if(_lhs_number){
+                    System.out.println("  li $t9 " + _value);
+                }
             }
 
         }
@@ -154,7 +164,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
         String built_in_label = c.op.name;
         String dest_value = "";
         String cmp_string = "";
-        if(built_in_label.contains("LtS") || built_in_label.contains("Sub") || built_in_label.contains("Add") || built_in_label.contains("MulS")){
+        if(built_in_label.contains("LtS") || built_in_label.contains("Sub") || built_in_label.contains("Add") || built_in_label.contains("MulS") || built_in_label.contains("Lt")){
             cmp_string = return_cmp_label(built_in_label);
             cmp_value = true;
         }
@@ -178,21 +188,45 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
                 String _str_lhs = list_args[i].toString();
                 String _str_rhs = list_args[i+1].toString();
                 if(cmp_string.equals("subu") && int_value){
-                    if(_str_lhs.matches("-?\\d+(\\.\\d+)?")){
+                    if(_str_lhs.matches("-?\\d+(\\.\\d+)?") && !_str_rhs.matches("-?\\d+(\\.\\d+)?")){
+                        System.out.println("  li $t9 " + _str_lhs);
                         System.out.println("  " + cmp_string + " " + c.dest + " $t9 " + _str_rhs);
-                    }else if(_str_rhs.matches("-?\\d+(\\.\\d+)?")){
-                        System.out.println("  " + cmp_string + " " + c.dest + " " + _str_lhs + " $t9");
+                        break;
+                    }else if(_str_lhs.matches("-?\\d+(\\.\\d+)?") && _str_rhs.matches("-?\\d+(\\.\\d+)?")){
+                        int number_1 = Integer.parseInt(_str_lhs);
+                        int number_2 = Integer.parseInt(_str_rhs);
+                        int total_value = number_1 - number_2;
+                        System.out.println("  li " + c.dest + " " + total_value);
+                        break;
                     }
-                    break;
-                }else{
-                    System.out.println("  " + cmp_string + " " + c.dest + " " + list_args[i].toString() + " " + list_args[i+1].toString());
-                    break;
+                }else if(cmp_string.equals("sltu") && int_value){
+                    if(_str_lhs.matches("-?\\d+(\\.\\d+)?") && !_str_rhs.matches("-?\\d+(\\.\\d+)?")){
+                        System.out.println("  li $t9 " + _str_lhs);
+                        System.out.println("  " + cmp_string + " " + c.dest + " $t9 " + _str_rhs);
+                        break;
+                    }
+                }else if(cmp_string.equals("mul") && int_value){
+                    if(_str_lhs.matches("-?\\d+(\\.\\d+)?") && _str_rhs.matches("-?\\d+(\\.\\d+)?")){
+                        int number_1 = Integer.parseInt(_str_lhs);
+                        int number_2 = Integer.parseInt(_str_rhs);
+                        int total_value = number_1 * number_2;
+                        System.out.println("  li " + c.dest + " " + total_value);
+                        break;
+                    }else if(_str_lhs.matches("-?\\d+(\\.\\d+)?") && !_str_rhs.matches("-?\\d+(\\.\\d+)?")){
+                        System.out.println("  " + cmp_string + " " + c.dest + " " + _str_rhs + " " + _str_lhs);
+                        break;
+                    }
                 }
+                System.out.println("  " + cmp_string + " " + c.dest + " " + list_args[i].toString() + " " + list_args[i+1].toString());
+                break;
             }
             if(list_args[i] instanceof VLitStr){
                 //System.out.println("Index: " + Integer.toString(p)  + " VBuilt in - String Literal Argument " + i + ": " + list_args[i].toString());
                 if(list_args[i].toString().contains("null")){
                     System.out.println("  " + "la $a" + i + " _str0");
+                }else if(list_args[i].toString().contains("array index")){
+                    System.out.println("  " + "la $a" + i + " _str1");
+                    access_set.add("array");
                 }
             }else if(list_args[i] instanceof VVarRef){
                 VVarRef temp_var_ref = (VVarRef)list_args[i];
@@ -225,9 +259,12 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
             _ret = _ret.replace("Z","");
             _ret = "_" + _ret;
             System.out.println("  " + "jal " + _ret);
+            System.out.println("  " + "move " + dest_name + " $v0");
+            /*
             if(dest_name.contains("$s")){
                 System.out.println("  " + "move " + dest_name + " $v0");
             }
+            */
             access_set.add("heap");
         }else if(op_name.equals("Error")){
             System.out.println("  " + "j _error");
@@ -243,7 +280,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
     */
     public String visit(Integer p , VMemWrite w){
         String _ret = "";
-        String _LHS = w.source.toString();
+        String _RHS = w.source.toString();
 
         if(w.dest instanceof VMemRef.Global){
             VOperand list_args = w.source;
@@ -262,19 +299,20 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
                         VVarRef.Register holy_reg = (VVarRef.Register)list_args;
                         System.out.println("  " + "sw $" + holy_reg.ident + " 0(" + temp_var.toString() + ")");
                     }else if(list_args instanceof VLabelRef){
-                        System.out.println("  " + "move " + temp_var.toString() + " $v0");
+                        //System.out.println("  " + "move " + temp_var.toString() + " $v0");
                     }
                 }else{
-                    if(!_LHS.contains("$")){
-                        _LHS = "$" + _LHS;
+                    if(_RHS.matches("-?\\d+(\\.\\d+)?")){
+                        System.out.println("  li $t9 " + _RHS);
+                        System.out.println("  sw $t9 " + c2.byteOffset + "(" + temp_var.toString() + ")");
+                    }else{
+                        if(!_RHS.contains("$")) {
+                            _RHS = "$" + _RHS;
+                        }
+                        System.out.println("  " + "sw " + _RHS + " " + c2.byteOffset + "(" + temp_var.toString() + ")");
                     }
-                    System.out.println("  " + "sw " + _LHS + " " + c2.byteOffset + "(" + temp_var.toString() + ")");
                 }
-
-
             }
-
-
 
             if(list_args instanceof VLitStr){
                 //System.out.println("VMemWrite - String Literal Argument: " + list_args.toString());
@@ -282,7 +320,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
                 VVarRef temp_var_ref = (VVarRef)list_args;
                 if(temp_var_ref instanceof VVarRef.Local){
                     VVarRef.Local temp_var_ref_local = (VVarRef.Local)temp_var_ref;
-                    //System.out.println("VMemWrite - Local Argument: " + temp_var_ref_local.toString());
+                    System.out.println("VMemWrite - Local Argument: " + temp_var_ref_local.toString());
 
                 }
             }else if(list_args instanceof VLitInt){
@@ -294,6 +332,15 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
                 VLabelRef temp_label_ref = (VLabelRef)list_args;
                 System.out.println("  " + "la $t9 " + temp_label_ref.ident);
                 System.out.println("  " + "sw $t9 0($t0)");
+                /*
+                VVarRef register_tmp = (VVarRef)w.source;
+                if(register_tmp instanceof VVarRef.Register){
+                    VVarRef.Register temp_var_ref_local = (VVarRef.Register)register_tmp;
+                    System.out.println("  " + "sw $t9 0(" + temp_var_ref_local.ident + ")");
+                }else{
+                    System.out.println("  " + "sw $t9 0($t0)");
+                }
+                */
             }
         }
         return _ret;

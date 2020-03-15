@@ -217,8 +217,10 @@ Tree.Init:
   move $t0 $a0
   move $t1 $a1
   sw $t1 8($t0)
-  sw $0 12($t0)
-  sw $0 16($t0)
+  li $t9 0
+  sw $t9 12($t0)
+  li $t9 0
+  sw $t9 16($t0)
   li $v0 1
   lw $ra -4($fp)
   lw $fp -8($fp)

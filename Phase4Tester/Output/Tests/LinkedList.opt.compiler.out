@@ -202,7 +202,8 @@ List.Init:
   subu $sp $sp 8
   sw $ra -4($fp)
   move $t0 $a0
-  sw $1 8($t0)
+  li $t9 1
+  sw $t9 8($t0)
   li $v0 1
   lw $ra -4($fp)
   lw $fp -8($fp)
@@ -286,15 +287,13 @@ List.Delete:
   move $s0 $a1
   move $s1 $t0
   li $s2 0
-  li $t9 0
-  subu $s3 $t9 1
+  li $s3 -1
   move $s4 $t0
   move $s5 $t0
   lw $s6 8($t0)
   lw $s7 0($t0)
 while1_top:
   bnez $s6 ss1_else
-  li $t9 1
   subu $t0 $t9 $s2
   j ss1_end
 ss1_else:
@@ -322,8 +321,7 @@ null7:
   move $s1 $v0
   j if9_end
 if9_else:
-  li $t9 0
-  subu $t0 $t9 555
+  li $t0 -555
   move $a0 $t0
   jal _print
   bnez $s5 null8
@@ -340,8 +338,7 @@ null9:
   move $a0 $s5
   move $a1 $t0
   jal List.SetNext
-  li $t9 0
-  subu $t0 $t9 555
+  li $t0 -555
   move $a0 $t0
   jal _print
 if9_end:
@@ -407,7 +404,6 @@ List.Search:
   lw $s3 8($t0)
   lw $t0 0($t0)
 while2_top:
-  li $t9 1
   subu $t1 $t9 $s3
   beqz $t1 while2_end
   bnez $s0 null13
@@ -507,7 +503,6 @@ List.Print:
   lw $s1 8($t0)
   lw $t0 0($t0)
 while3_top:
-  li $t9 1
   subu $t1 $t9 $s1
   beqz $t1 while3_end
   bnez $t0 null17

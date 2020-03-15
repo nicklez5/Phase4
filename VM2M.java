@@ -156,6 +156,31 @@ public class VM2M{
         }
         return false;
     }
+    public List<String> check_list_order(List<String> tmp_list){
+        String first_word = tmp_list.get(0);
+        List<String> new_list = new ArrayList<String>();
+        if(first_word.contains("end")){
+            String find_word = first_word.replace("end","else");
+            if(tmp_list.contains(find_word)){
+                for(int i = 0; i < tmp_list.size() ;i++){
+                    String loopword = tmp_list.get(i);
+                    if(loopword.equals(first_word)){
+
+                    }else if(loopword.equals(find_word)){
+                        new_list.add(loopword);
+                        new_list.add(first_word);
+                    }else{
+                        new_list.add(loopword);
+                    }
+                }
+                return new_list;
+            }else{
+                return tmp_list;
+            }
+        }
+        return tmp_list;
+
+    }
     public void extract_more_label_data(){
         for(int i = 0; i < list_functions.length ; i++){
             VFunction temp_function = list_functions[i];
@@ -176,7 +201,7 @@ public class VM2M{
                             if(temp_label_map.containsKey(label_index)){
                                 local_list.add(label_name);
                                 local_list.addAll(temp_label_map.get(label_index));
-                                temp_label_map.replace(label_index,local_list);
+                                temp_label_map.replace(label_index,check_list_order(local_list));
                             }else{
                                 local_list.add(label_name);
                                 temp_label_map.put(label_index,local_list);
@@ -195,7 +220,8 @@ public class VM2M{
                         if(temp_label_map.containsKey(label_index)){
                             local_list2.add(label_name);
                             local_list2.addAll(temp_label_map.get(label_index));
-                            temp_label_map.replace(label_index,local_list2);
+
+                            temp_label_map.replace(label_index,check_list_order(local_list2));
                         }else{
                             local_list2.add(label_name);
                             temp_label_map.put(label_index,local_list2);
@@ -237,6 +263,7 @@ public class VM2M{
         }
     }
     public void ending_print(){
+        boolean array_print = false;
         do{
             if(node_visit.access_set.contains("print")){
                 System.out.println("_print:");
@@ -263,6 +290,9 @@ public class VM2M{
                 System.out.println("  " + "jr $ra");
                 System.out.println("");
                 node_visit.access_set.remove("heap");
+            }else if(node_visit.access_set.contains("array")){
+                array_print = true;
+                node_visit.access_set.remove("array");
             }
         }while(node_visit.access_set.size() != 0);
 
@@ -270,7 +300,9 @@ public class VM2M{
         System.out.println(".align 0");
         System.out.println("_newline: .asciiz \"\\n\"");
         System.out.println("_str0: .asciiz \"null pointer\\n\"");
-
+        if(array_print){
+            System.out.println("_str1: .asciiz \"array index out of bounds\\n\"");
+        }
     }
     public void big_print_data(){
         etc_print();
