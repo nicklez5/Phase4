@@ -289,7 +289,7 @@ List.Insert:
   jal _heapAlloc
   move $t2 $v0
   la $t9 vmt_List
-  sw $t9 0($t0)
+  sw $t9 0($t2)
   move $s0 $t2
   bnez $s0 null6
   la $a0 _str0
@@ -328,15 +328,14 @@ List.Delete:
   move $fp $sp
   subu $sp $sp 44
   sw $ra -4($fp)
-  sw $s0 0($sp)
-  sw $s1 4($sp)
-  sw $s2 8($sp)
-  sw $s3 12($sp)
-  sw $s4 16($sp)
-  sw $s5 20($sp)
-  sw $s6 24($sp)
-  sw $s7 28($sp)
-  sw $s8 32($sp)
+  sw $s0 4($sp)
+  sw $s1 8($sp)
+  sw $s2 12($sp)
+  sw $s3 16($sp)
+  sw $s4 20($sp)
+  sw $s5 24($sp)
+  sw $s6 28($sp)
+  sw $s7 32($sp)
   move $t0 $a0
   move $s0 $a1
   move $s1 $t0
@@ -390,7 +389,10 @@ if9_else:
   j _error
 null9:
   lw $v0 0($s5)
+  sw $v0 0($sp)
+  lw $v0 0($sp)
   lw $v0 12($v0)
+  sw $v0 0($sp)
   bnez $s4 null10
   la $a0 _str0
   j _error
@@ -402,6 +404,7 @@ null10:
   move $t0 $v0
   move $a0 $s5
   move $a1 $t0
+  lw $v0 0($sp)
   jalr $v0
   li $t0 -555
   move $a0 $t0
@@ -448,15 +451,14 @@ if10_end:
   j while1_top
 while1_end:
   move $v0 $s1
-  lw $s0 0($sp)
-  lw $s1 4($sp)
-  lw $s2 8($sp)
-  lw $s3 12($sp)
-  lw $s4 16($sp)
-  lw $s5 20($sp)
-  lw $s6 24($sp)
-  lw $s7 28($sp)
-  lw $s8 32($sp)
+  lw $s0 4($sp)
+  lw $s1 8($sp)
+  lw $s2 12($sp)
+  lw $s3 16($sp)
+  lw $s4 20($sp)
+  lw $s5 24($sp)
+  lw $s6 28($sp)
+  lw $s7 32($sp)
   lw $ra -4($fp)
   lw $fp -8($fp)
   addu $sp $sp 44

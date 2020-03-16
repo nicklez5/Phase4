@@ -129,6 +129,7 @@ bounds2:
   addu $t7 $t7 $t6
   lw $t7 4($t7)
   slt $t6 $t7 $t3
+  li $t9 1
   subu $t6 $t9 $t6
   beqz $t6 if2_else
   li $t5 0
@@ -157,6 +158,7 @@ bounds3:
   addu $t8 $t8 $t6
   lw $t7 4($t8)
   slt $t7 $t3 $t7
+  li $t9 1
   subu $t7 $t9 $t7
   beqz $t7 if3_else
   li $t5 0

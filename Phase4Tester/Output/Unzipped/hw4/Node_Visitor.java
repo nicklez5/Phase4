@@ -8,14 +8,27 @@ import cs132.vapor.ast.VMemRef.Stack;
 public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeException>{
     public int t;
     public Set<String> access_set;
+    public int local_stack_index;
+    public int local_in_index;
+    public int local_out_index;
+    public boolean local_loop;
     public Map<Integer,List<String>> node_label_map;
     public Node_Visitor(){
         t = 0;
         access_set = new HashSet<String>();
         node_label_map = new HashMap<Integer,List<String>>();
+        local_stack_index = 0;
+        local_loop = false;
+        local_in_index = 0;
+        local_out_index = 0;
     }
     public void set_local_label_map(Map<Integer,List<String>> temp_map){
         node_label_map = temp_map;
+    }
+    public void clear_index(){
+        local_stack_index = 0;
+        local_in_index = 0;
+        local_out_index = 0;
     }
     public void init_t(){
         t = 0;
@@ -43,7 +56,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
         }
         if(a.dest instanceof VVarRef.Local){
             VVarRef.Local temp_local = (VVarRef.Local)a.dest;
-            //System.out.println("  " + "local was here");
+
             //System.out.println("VAssign - Store to: " + temp_local.toString());
 
         }
@@ -189,6 +202,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
                 String _str_rhs = list_args[i+1].toString();
                 if(cmp_string.equals("subu") && int_value){
                     if(_str_lhs.matches("-?\\d+(\\.\\d+)?") && !_str_rhs.matches("-?\\d+(\\.\\d+)?")){
+                        System.out.println("  li $t9 " + _str_lhs);
                         System.out.println("  " + cmp_string + " " + c.dest + " $t9 " + _str_rhs);
                         break;
                     }else if(_str_lhs.matches("-?\\d+(\\.\\d+)?") && _str_rhs.matches("-?\\d+(\\.\\d+)?")){
@@ -280,8 +294,10 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
     public String visit(Integer p , VMemWrite w){
         String _ret = "";
         String _RHS = w.source.toString();
-
+        String _LHS = w.dest.toString();
         if(w.dest instanceof VMemRef.Global){
+            local_loop = true;
+            clear_index();
             VOperand list_args = w.source;
             //VMemRef data = w.dest;
             VMemRef.Global c2 = (VMemRef.Global)w.dest;
@@ -301,6 +317,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
                         //System.out.println("  " + "move " + temp_var.toString() + " $v0");
                     }
                 }else{
+
                     if(_RHS.matches("-?\\d+(\\.\\d+)?")){
                         System.out.println("  li $t9 " + _RHS);
                         System.out.println("  sw $t9 " + c2.byteOffset + "(" + temp_var.toString() + ")");
@@ -310,15 +327,8 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
                         }
                         System.out.println("  " + "sw " + _RHS + " " + c2.byteOffset + "(" + temp_var.toString() + ")");
                     }
-
-
-
                 }
-
-
             }
-
-
 
             if(list_args instanceof VLitStr){
                 //System.out.println("VMemWrite - String Literal Argument: " + list_args.toString());
@@ -326,7 +336,7 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
                 VVarRef temp_var_ref = (VVarRef)list_args;
                 if(temp_var_ref instanceof VVarRef.Local){
                     VVarRef.Local temp_var_ref_local = (VVarRef.Local)temp_var_ref;
-                    //System.out.println("VMemWrite - Local Argument: " + temp_var_ref_local.toString());
+                    System.out.println("VMemWrite - Local Argument: " + temp_var_ref_local.toString());
 
                 }
             }else if(list_args instanceof VLitInt){
@@ -337,8 +347,50 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
             }else if(list_args instanceof VLabelRef){
                 VLabelRef temp_label_ref = (VLabelRef)list_args;
                 System.out.println("  " + "la $t9 " + temp_label_ref.ident);
-                System.out.println("  " + "sw $t9 0($t0)");
+                if(w.dest instanceof VMemRef.Global){
+                    VMemRef.Global temp_global = (VMemRef.Global)w.dest;
+                    VAddr<VDataSegment> temp_global_addr = temp_global.base;
+                    _LHS = temp_global_addr.toString();
+                    System.out.println("  " + "sw $t9 0(" + _LHS + ")");
+                }else{
+                    System.out.println("  " + "sw $t9 0($t0)");
+                }
+
             }
+        }else if(w.dest instanceof VMemRef.Stack){
+            VMemRef.Stack stack_local = (VMemRef.Stack)w.dest;
+            int indexof_stack = stack_local.index;
+            indexof_stack = 4 * indexof_stack;
+            if(_RHS.contains("$v")){
+                if(stack_local.region == VMemRef.Stack.Region.Local){
+                    System.out.println("  sw " + _RHS + " " + indexof_stack + "($sp)");
+                }
+            }else{
+                if(!local_loop){
+                    if(stack_local.region == VMemRef.Stack.Region.In){
+                        System.out.println("  sw $s" + local_in_index + " " + indexof_stack + "($sp)");
+                        local_in_index++;
+                    }else if(stack_local.region == VMemRef.Stack.Region.Out){
+                        System.out.println("  sw $s" + local_out_index + " " + indexof_stack + "($sp)");
+                        local_out_index++;
+                    }else if(stack_local.region == VMemRef.Stack.Region.Local){
+                        System.out.println("  sw $s" + local_stack_index + " " + indexof_stack + "($sp)");
+                        local_stack_index++;
+                    }
+                }else{
+                    if(stack_local.region == VMemRef.Stack.Region.In){
+                        System.out.println("  lw $s" + local_in_index + " " + indexof_stack + "($sp)");
+                        local_in_index++;
+                    }else if(stack_local.region == VMemRef.Stack.Region.Out){
+                        System.out.println("  lw $s" + local_out_index + " " + indexof_stack + "($sp)");
+                        local_out_index++;
+                    }else if(stack_local.region == VMemRef.Stack.Region.Local){
+                        System.out.println("  lw $s" + local_stack_index + " " + indexof_stack + "($sp)");
+                        local_stack_index++;
+                    }
+                }
+            }
+
         }
         return _ret;
 
@@ -361,7 +413,9 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
     public String visit(Integer p ,VMemRead r)  {
         String _ret = "";
         String _dest = r.dest.toString();
+        String _RHS = r.source.toString();
         if(r.source instanceof VMemRef.Global){
+            local_loop = true;
             VMemRef.Global _global = (VMemRef.Global)r.source;
             //VMemRef.Global c = r.source;
             VAddr<VDataSegment> c2 = _global.base;
@@ -372,6 +426,40 @@ public class Node_Visitor extends VInstr.VisitorPR< Integer ,String, RuntimeExce
                 VAddr.Var temp_var = (VAddr.Var)c2;
                 System.out.println("  " + "lw " + _dest + " " + _global.byteOffset + "(" + temp_var.toString() + ")");
 
+            }
+        }else if(r.source instanceof VMemRef.Stack){
+            VMemRef.Stack stack_local = (VMemRef.Stack)r.source;
+            int indexof_stack = stack_local.index;
+            indexof_stack = 4 * indexof_stack;
+            if(_dest.contains("$v")){
+                if(stack_local.region == VMemRef.Stack.Region.Local){
+                    System.out.println("  lw $v0 " + indexof_stack + "($sp)");
+
+                }
+            }else{
+                if(!local_loop){
+                    if(stack_local.region == VMemRef.Stack.Region.In){
+                        System.out.println("  sw $s" + local_in_index + " " + indexof_stack + "($sp)");
+                        local_in_index++;
+                    }else if(stack_local.region == VMemRef.Stack.Region.Out){
+                        System.out.println("  sw $s" + local_out_index + " " + indexof_stack + "($sp)");
+                        local_out_index++;
+                    }else if(stack_local.region == VMemRef.Stack.Region.Local){
+                        System.out.println("  sw $s" + local_stack_index + " " + indexof_stack + "($sp)");
+                        local_stack_index++;
+                    }
+                }else{
+                    if(stack_local.region == VMemRef.Stack.Region.In){
+                        System.out.println("  lw $s" + local_in_index + " " + indexof_stack + "($sp)");
+                        local_in_index++;
+                    }else if(stack_local.region == VMemRef.Stack.Region.Out){
+                        System.out.println("  lw $s" + local_out_index + " " + indexof_stack + "($sp)");
+                        local_out_index++;
+                    }else if(stack_local.region == VMemRef.Stack.Region.Local){
+                        System.out.println("  lw $s" + local_stack_index + " " + indexof_stack + "($sp)");
+                        local_stack_index++;
+                    }
+                }
             }
         }
         if(r.dest instanceof VVarRef.Local){

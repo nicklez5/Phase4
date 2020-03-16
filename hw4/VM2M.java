@@ -54,6 +54,7 @@ public class VM2M{
             godfather.extract_label_data();
             godfather.extract_more_label_data();
             godfather.big_print_data();
+            //godfather.print_all_dataSegments();
             //godfather.print_labels();
         }
     }
@@ -82,23 +83,35 @@ public class VM2M{
     }
     public void visit_instruction(int k, VInstr temp_instruction){
 
-
         if(temp_instruction instanceof VCall){
             node_visit.visit(k,(VCall)temp_instruction);
+            node_visit.local_loop = true;
+            node_visit.clear_index();
         }else if(temp_instruction instanceof VAssign){
             node_visit.visit(k,(VAssign)temp_instruction);
+            node_visit.local_loop = true;
+            node_visit.clear_index();
         }else if(temp_instruction instanceof VBuiltIn){
             node_visit.visit(k,(VBuiltIn)temp_instruction);
+            node_visit.local_loop = true;
+            node_visit.clear_index();
         }else if(temp_instruction instanceof VMemWrite){
             node_visit.visit(k,(VMemWrite)temp_instruction);
         }else if(temp_instruction instanceof VMemRead){
             node_visit.visit(k,(VMemRead)temp_instruction);
+            
         }else if(temp_instruction instanceof VBranch){
             node_visit.visit(k, (VBranch)temp_instruction);
+            node_visit.local_loop = true;
+            node_visit.clear_index();
         }else if(temp_instruction instanceof VGoto){
             node_visit.visit(k,(VGoto)temp_instruction);
+            node_visit.local_loop = true;
+            node_visit.clear_index();
         }else if(temp_instruction instanceof VReturn){
             node_visit.visit(k,(VReturn)temp_instruction);
+            node_visit.local_loop = true;
+            node_visit.clear_index();
         }
 
     }
@@ -156,10 +169,36 @@ public class VM2M{
         }
         return false;
     }
+    public List<String> check_list_order(List<String> tmp_list){
+        String first_word = tmp_list.get(0);
+        List<String> new_list = new ArrayList<String>();
+        if(first_word.contains("end")){
+            String find_word = first_word.replace("end","else");
+            if(tmp_list.contains(find_word)){
+                for(int i = 0; i < tmp_list.size() ;i++){
+                    String loopword = tmp_list.get(i);
+                    if(loopword.equals(first_word)){
+
+                    }else if(loopword.equals(find_word)){
+                        new_list.add(loopword);
+                        new_list.add(first_word);
+                    }else{
+                        new_list.add(loopword);
+                    }
+                }
+                return new_list;
+            }else{
+                return tmp_list;
+            }
+        }
+        return tmp_list;
+
+    }
     public void extract_more_label_data(){
         for(int i = 0; i < list_functions.length ; i++){
             VFunction temp_function = list_functions[i];
             Map<Integer,List<String>> temp_label_map = label_map.get(i);
+            node_visit.local_loop = false;
             for(int j = 0; j < temp_function.body.length;j++){
                 VInstr temp_instruction = temp_function.body[j];
                 if(temp_instruction instanceof VGoto){
@@ -176,7 +215,7 @@ public class VM2M{
                             if(temp_label_map.containsKey(label_index)){
                                 local_list.add(label_name);
                                 local_list.addAll(temp_label_map.get(label_index));
-                                temp_label_map.replace(label_index,local_list);
+                                temp_label_map.replace(label_index,check_list_order(local_list));
                             }else{
                                 local_list.add(label_name);
                                 temp_label_map.put(label_index,local_list);
@@ -195,7 +234,8 @@ public class VM2M{
                         if(temp_label_map.containsKey(label_index)){
                             local_list2.add(label_name);
                             local_list2.addAll(temp_label_map.get(label_index));
-                            temp_label_map.replace(label_index,local_list2);
+
+                            temp_label_map.replace(label_index,check_list_order(local_list2));
                         }else{
                             local_list2.add(label_name);
                             temp_label_map.put(label_index,local_list2);
@@ -226,6 +266,15 @@ public class VM2M{
                 System.out.println("  " + "sw $s" + i + " " + stack_ptr + "($sp)");
             }
         }
+    }
+    public void check_vars(){
+        /*
+        System.out.println("Was i executed.");
+        for(int i = 0 ; i < dataSegments.length;i++){
+            System.
+        }
+        */
+
     }
     public void restore_stack(VFunction da_function){
         Stack temp_stack = da_function.stack;
@@ -284,7 +333,8 @@ public class VM2M{
             VFunction temp_function = list_functions[i];
             System.out.println(temp_function.ident + ":");
             entry_to_function(temp_function);
-            save_stack(temp_function);
+            //save_stack(temp_function);
+            node_visit.local_loop = false;
             Map<Integer,List<String>> current_label_map = label_map.get(i);
             node_visit.set_local_label_map(current_label_map);
             int current_t = 0;
@@ -300,10 +350,11 @@ public class VM2M{
                 visit_instruction(xyz_2,instruction);
 
             }
-            restore_stack(temp_function);
+            //restore_stack(temp_function);
             leave_function(temp_function);
-
+            //check_vars(temp_function);
             System.out.println("");
+
         }
         ending_print();
     }

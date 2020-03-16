@@ -17,6 +17,9 @@ Main:
   li $a1 1
   li $a2 2
   li $a3 3
+  lw $s0 0($sp)
+  lw $s1 4($sp)
+  lw $s2 8($sp)
   jal MT4.Start
   move $t0 $v0
   move $a0 $t0
@@ -35,6 +38,9 @@ MT4.Start:
   move $t1 $a1
   move $t2 $a2
   move $t3 $a3
+  lw $s0 0($sp)
+  lw $s1 4($sp)
+  lw $s2 8($sp)
   move $a0 $t1
   jal _print
   move $a0 $t2
@@ -51,6 +57,9 @@ MT4.Start:
   move $a1 $t6
   move $a2 $t5
   move $a3 $t4
+  lw $s0 0($sp)
+  lw $s1 4($sp)
+  lw $s2 8($sp)
   jal MT4.Change
   move $t6 $v0
   move $v0 $t6
@@ -67,6 +76,9 @@ MT4.Change:
   move $t0 $a1
   move $t1 $a2
   move $t2 $a3
+  lw $s0 0($sp)
+  lw $s1 4($sp)
+  lw $s2 8($sp)
   move $a0 $t0
   jal _print
   move $a0 $t1

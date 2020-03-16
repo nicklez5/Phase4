@@ -166,6 +166,7 @@ bounds2:
   j if1_end
 if1_else:
   slt $t4 $t5 $t4
+  li $t9 1
   subu $t4 $t9 $t4
   beqz $t4 if2_else
   j if2_end
